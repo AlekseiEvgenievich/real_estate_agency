@@ -7,7 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 class Flat(models.Model):
     liked_by = models.ManyToManyField(
         User,
-        related_name="user_likes",
+        related_name="liked_objects",
         blank=True,
         verbose_name="Кто лайкнул",)
     created_at = models.DateTimeField(
@@ -61,23 +61,28 @@ class Flat(models.Model):
 
 class Сomplaint(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name='Кто жаловался:')
+        User, related_name="user_complaints",
+        on_delete=models.CASCADE, verbose_name='Кто жаловался:')
     flat = models.ForeignKey(
-        Flat, on_delete=models.CASCADE,
+        Flat, related_name="flat_complaints",
+        on_delete=models.CASCADE,
         verbose_name='Квартира, на которую пожаловались')
-    complaint_text = models.TextField('Текст жалобы', blank=True)
+    text = models.TextField('Текст жалобы', blank=True)
+
+    def __str__(self):
+        return self.user
 
 
 class Owner(models.Model):
     owner = models.CharField('ФИО владельца', max_length=200, db_index=True)
-    owners_phonenumber = models.CharField(
+    phonenumber = models.CharField(
         'Номер владельца', max_length=20, db_index=True)
-    owner_pure_phone = PhoneNumberField(
+    pure_phone = PhoneNumberField(
         'Нормализованный номер владельца', blank=True, db_index=True)
     flats = models.ManyToManyField(
         Flat,
-        related_name="flat_owners",
+        related_name="owners",
         verbose_name="Квартиры в собственности", db_index=True)
 
     def __str__(self):
-        return f'{self.owner}'
+        return self.owner

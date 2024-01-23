@@ -6,20 +6,24 @@ import phonenumbers
 
 def add_owner_pure_phone(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
-    for flat in Flat.objects.all():
-        parsed_number = phonenumbers.parse(flat.owners_phonenumber, "RU")
-        if phonenumbers.is_valid_number(parsed_number):
-            flat.owner_pure_phone = phonenumbers.format_number(
-                parsed_number,
-                phonenumbers.PhoneNumberFormat.E164)
-            flat.save()
+    flat_set = Flat.objects.all()
+    if flat_set.exists():
+        for flat in flat_set.iterator():
+            parsed_number = phonenumbers.parse(flat.owners_phonenumber, "RU")
+            if phonenumbers.is_valid_number(parsed_number):
+                flat.owner_pure_phone = phonenumbers.format_number(
+                    parsed_number,
+                    phonenumbers.PhoneNumberFormat.E164)
+                flat.save()
 
 
 def remove_owner_pure_phone(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
-    for flat in Flat.objects.all():
-        flat.owner_pure_phone = flat.owners_phonenumber
-        flat.save()
+    flat_set = Flat.objects.all()
+    if flat_set.exists():
+        for flat in flat_set.iterator():
+            flat.owner_pure_phone = flat.owners_phonenumber
+            flat.save()
 
 
 class Migration(migrations.Migration):
@@ -29,5 +33,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(add_owner_pure_phone,remove_owner_pure_phone),
+        migrations.RunPython(add_owner_pure_phone, remove_owner_pure_phone),
     ]

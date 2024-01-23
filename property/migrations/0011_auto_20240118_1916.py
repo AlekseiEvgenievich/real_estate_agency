@@ -7,12 +7,14 @@ def migrate_owner_data(apps, schema_editor):
     Flat = apps.get_model('property', 'Flat')
     Owner = apps.get_model('property', 'Owner')
 
-    for flat in Flat.objects.all():
-        owner, created = Owner.objects.get_or_create(
-            owner=flat.owner,
-            defaults={'owners_phonenumber': flat.owners_phonenumber,
-                      'owner_pure_phone': flat.owner_pure_phone}
-        )
+    flat_set = Flat.objects.all()
+    if flat_set.exists():
+        for flat in flat_set.iterator():
+            owner, created = Owner.objects.get_or_create(
+                owner=flat.owner,
+                defaults={'owners_phonenumber': flat.owners_phonenumber,
+                          'owner_pure_phone': flat.owner_pure_phone}
+            )
 
 
 def demigrate_owner_data(apps, schema_editor):
