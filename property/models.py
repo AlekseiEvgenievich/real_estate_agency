@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -7,12 +6,12 @@ from phonenumber_field.modelfields import PhoneNumberField
 class Flat(models.Model):
     liked_by = models.ManyToManyField(
         User,
-        related_name="liked_objects",
+        related_name="liked_flats",
         blank=True,
         verbose_name="Кто лайкнул",)
     created_at = models.DateTimeField(
         'Когда создано объявление',
-        default=timezone.now,
+        auto_now_add=True,
         db_index=True)
 
     description = models.TextField('Текст объявления', blank=True)
@@ -61,10 +60,10 @@ class Flat(models.Model):
 
 class Сomplaint(models.Model):
     user = models.ForeignKey(
-        User, related_name="user_complaints",
+        User, related_name="filed_complaints",
         on_delete=models.CASCADE, verbose_name='Кто жаловался:')
     flat = models.ForeignKey(
-        Flat, related_name="flat_complaints",
+        Flat, related_name="received_complaints",
         on_delete=models.CASCADE,
         verbose_name='Квартира, на которую пожаловались')
     text = models.TextField('Текст жалобы', blank=True)
@@ -74,7 +73,7 @@ class Сomplaint(models.Model):
 
 
 class Owner(models.Model):
-    owner = models.CharField('ФИО владельца', max_length=200, db_index=True)
+    user = models.CharField('ФИО владельца', max_length=200, db_index=True)
     phonenumber = models.CharField(
         'Номер владельца', max_length=20, db_index=True)
     pure_phone = PhoneNumberField(
@@ -85,4 +84,4 @@ class Owner(models.Model):
         verbose_name="Квартиры в собственности", db_index=True)
 
     def __str__(self):
-        return self.owner
+        return self.user
